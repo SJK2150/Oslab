@@ -1,0 +1,190 @@
+FCFS
+
+#include <iostream>
+using namespace std;
+
+struct Process {
+    int id, arrival, burst, completion, turnaround, waiting;
+};
+
+void findFCFS(Process proc[], int n) {
+    proc[0].completion = proc[0].arrival + proc[0].burst;
+    proc[0].turnaround = proc[0].completion - proc[0].arrival;
+    proc[0].waiting = proc[0].turnaround - proc[0].burst;
+
+    for (int i = 1; i < n; i++) {
+        proc[i].completion = max(proc[i].arrival, proc[i - 1].completion) + proc[i].burst;
+        proc[i].turnaround = proc[i].completion - proc[i].arrival;
+        proc[i].waiting = proc[i].turnaround - proc[i].burst;
+    }
+}
+
+void display(Process proc[], int n) {
+    cout << "ID\tArrival\tBurst\tCompletion\tTAT\tWaiting\n";
+    for (int i = 0; i < n; i++) {
+        cout << proc[i].id << "\t" << proc[i].arrival << "\t" << proc[i].burst << "\t"
+             << proc[i].completion << "\t\t" << proc[i].turnaround << "\t" << proc[i].waiting << endl;
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter number of processes: ";
+    cin >> n;
+    Process proc[n];
+
+    cout << "Enter Arrival Time and Burst Time for each process:\n";
+    for (int i = 0; i < n; i++) {
+        proc[i].id = i + 1;
+        cin >> proc[i].arrival >> proc[i].burst;
+    }
+
+    findFCFS(proc, n);
+    display(proc, n);
+
+    return 0;
+}
+
+SJF
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Process {
+    int id, arrival, burst, completion, turnaround, waiting;
+};
+
+bool compare(Process a, Process b) {
+    return (a.burst < b.burst);
+}
+
+void findSJF(Process proc[], int n) {
+    sort(proc, proc + n, compare);
+    
+    proc[0].completion = proc[0].arrival + proc[0].burst;
+    proc[0].turnaround = proc[0].completion - proc[0].arrival;
+    proc[0].waiting = proc[0].turnaround - proc[0].burst;
+
+    for (int i = 1; i < n; i++) {
+        proc[i].completion = max(proc[i].arrival, proc[i - 1].completion) + proc[i].burst;
+        proc[i].turnaround = proc[i].completion - proc[i].arrival;
+        proc[i].waiting = proc[i].turnaround - proc[i].burst;
+    }
+}
+
+void display(Process proc[], int n) {
+    cout << "ID\tArrival\tBurst\tCompletion\tTAT\tWaiting\n";
+    for (int i = 0; i < n; i++) {
+        cout << proc[i].id << "\t" << proc[i].arrival << "\t" << proc[i].burst << "\t"
+             << proc[i].completion << "\t\t" << proc[i].turnaround << "\t" << proc[i].waiting << endl;
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter number of processes: ";
+    cin >> n;
+    Process proc[n];
+
+    cout << "Enter Arrival Time and Burst Time for each process:\n";
+    for (int i = 0; i < n; i++) {
+        proc[i].id = i + 1;
+        cin >> proc[i].arrival >> proc[i].burst;
+    }
+
+    findSJF(proc, n);
+    display(proc, n);
+
+    return 0;
+}
+Round robim
+#include <iostream>
+#include <queue>
+using namespace std;
+
+struct Process {
+    int id, arrival, burst, remaining, completion, turnaround, waiting;
+};
+
+void findRoundRobin(Process proc[], int n, int quantum) {
+    queue<int> q;
+    int time = 0, completed = 0;
+    
+    for (int i = 0; i < n; i++)
+        proc[i].remaining = proc[i].burst;
+
+    q.push(0);
+    
+    while (!q.empty()) {
+        int i = q.front();
+        q.pop();
+
+        int execTime = min(quantum, proc[i].remaining);
+        proc[i].remaining -= execTime;
+        time += execTime;
+
+        if (proc[i].remaining > 0) {
+            q.push(i);
+        } else {
+            proc[i].completion = time;
+            proc[i].turnaround = proc[i].completion - proc[i].arrival;
+            proc[i].waiting = proc[i].turnaround - proc[i].burst;
+            completed++;
+        }
+    }
+}
+
+void display(Process proc[], int n) {
+    cout << "ID\tArrival\tBurst\tCompletion\tTAT\tWaiting\n";
+    for (int i = 0; i < n; i++) {
+        cout << proc[i].id << "\t" << proc[i].arrival << "\t" << proc[i].burst << "\t"
+             << proc[i].completion << "\t\t" << proc[i].turnaround << "\t" << proc[i].waiting << endl;
+    }
+}
+
+int main() {
+    int n, quantum;
+    cout << "Enter number of processes: ";
+    cin >> n;
+    Process proc[n];
+
+    cout << "Enter Arrival Time and Burst Time for each process:\n";
+    for (int i = 0; i < n; i++) {
+        proc[i].id = i + 1;
+        cin >> proc[i].arrival >> proc[i].burst;
+    }
+
+    cout << "Enter time quantum: ";
+    cin >> quantum;
+
+    findRoundRobin(proc, n, quantum);
+    display(proc, n);
+
+    return 0;
+}
+priority scheduling 
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Process {
+    int id, arrival, burst, priority, completion, turnaround, waiting;
+};
+
+bool compare(Process a, Process b) {
+    return a.priority < b.priority;
+}
+
+void findPriorityScheduling(Process proc[], int n) {
+    sort(proc, proc + n, compare);
+
+    proc[0].completion = proc[0].arrival + proc[0].burst;
+    proc[0].turnaround = proc[0].completion - proc[0].arrival;
+    proc[0].waiting = proc[0].turnaround - proc[0].burst;
+
+    for (int i = 1; i < n; i++) {
+        proc[i].completion = max(proc[i].arrival, proc[i - 1].completion) + proc[i].burst;
+        proc[i].turnaround = proc[i].completion - proc[i].arrival;
+        proc[i].waiting = proc[i].turnaround - proc[i].burst;
+    }
+}
